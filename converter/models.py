@@ -57,8 +57,11 @@ class Audio(ModelBase):
             else:
                 print("ERROR: The Text to Speech service was not found")
 
-        return requests.get(url + "/v1/synthesize",
+        response = requests.get(url + "/v1/synthesize",
             auth=(username, password),
             params={'text': text, 'voice': voice, 'accept': accept},
             stream=True, verify=False
         )
+        Audio.objects.create(voice=voice, text=text, audio_file=response.iter_content())
+
+        return response
