@@ -74,3 +74,6 @@ staticfiles/
 
 # Default html coverage location
 htmlcov/
+
+# Database
+db.sqlite3
