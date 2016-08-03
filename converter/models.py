@@ -3,7 +3,9 @@ from django.conf import settings
 
 from audiofield.fields import AudioField
 
-import os.path
+import os
+import requests
+import json
 
 
 class Audio(ModelBase):
@@ -28,3 +30,35 @@ class Audio(ModelBase):
 
 	audio_file_player.allow_tags = True
 	audio_file_player.short_description = ('Audio file player')
+
+
+	@staticmethod
+    def synthesize(text, voice, accept):
+        """
+        Returns the get HTTP response by doing a GET to
+        /v1/synthesize with text, voice, accept
+        """
+        vcapServices = os.getenv("VCAP_SERVICES")
+        # Local variables
+        self.url = "https://stream.watsonplatform.net/text-to-speech/api"
+        self.username = "<username>"
+        self.password = "<password>"
+
+        if vcapServices is not None:
+            print("Parsing VCAP_SERVICES")
+            services = json.loads(vcapServices)
+            svcName = "text_to_speech"
+            if svcName in services:
+                print("Text to Speech service found!")
+                svc = services[svcName][0]["credentials"]
+                self.url = svc["url"]
+                self.username = svc["username"]
+                self.password = svc["password"]
+            else:
+                print("ERROR: The Text to Speech service was not found")
+
+        return requests.get(self.url + "/v1/synthesize",
+            auth=(self.username, self.password),
+            params={'text': text, 'voice': voice, 'accept': accept},
+            stream=True, verify=False
+        )

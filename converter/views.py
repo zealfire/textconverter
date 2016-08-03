@@ -21,6 +21,18 @@ class Synthesize(APIView):
         voice = request.query_params.get('voice', 'en-US_MichaelVoice')
         accept = request.query_params.get('accept', 'audio/ogg; codecs=opus')
         text = request.query_params.get('text', '')
+        download = request.args.get('download', '')
 
-        
+	    headers = {}
+
+	    if download:
+	        headers['content-disposition'] = 'attachment; filename=transcript.ogg'
+
+	    try:
+	        req = textToSpeech.synthesize(text, voice, accept)
+	        return Response(stream_with_context(req.iter_content()),
+	            headers=headers, content_type = req.headers['content-type'])
+	    except Exception,e:
+	        abort(500)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
