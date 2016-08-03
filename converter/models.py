@@ -40,9 +40,9 @@ class Audio(ModelBase):
         """
         vcapServices = os.getenv("VCAP_SERVICES")
         # Local variables
-        self.url = "https://stream.watsonplatform.net/text-to-speech/api"
-        self.username = "<username>"
-        self.password = "<password>"
+        url = "https://stream.watsonplatform.net/text-to-speech/api"
+        username = "<username>"
+        password = "<password>"
 
         if vcapServices is not None:
             print("Parsing VCAP_SERVICES")
@@ -51,14 +51,14 @@ class Audio(ModelBase):
             if svcName in services:
                 print("Text to Speech service found!")
                 svc = services[svcName][0]["credentials"]
-                self.url = svc["url"]
-                self.username = svc["username"]
-                self.password = svc["password"]
+                url = svc["url"]
+                username = svc["username"]
+                password = svc["password"]
             else:
                 print("ERROR: The Text to Speech service was not found")
 
-        return requests.get(self.url + "/v1/synthesize",
-            auth=(self.username, self.password),
+        return requests.get(url + "/v1/synthesize",
+            auth=(username, password),
             params={'text': text, 'voice': voice, 'accept': accept},
             stream=True, verify=False
         )
